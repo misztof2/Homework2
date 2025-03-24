@@ -1,0 +1,108 @@
+#include <iostream>
+#include <vector>
+#include <numeric>
+#include <iomanip>
+#include <sstream>
+
+class Time {
+private:
+    int seconds;
+
+public:
+    Time(int sec = 0) : seconds(sec) {}
+
+    friend std::ostream& operator<<(std::ostream& os, const Time& t) {
+        int h = t.seconds / 3600;
+        int m = (t.seconds % 3600) / 60;
+        int s = t.seconds % 60;
+        os << std::setw(2) << std::setfill('0') << h << "h:" 
+           << std::setw(2) << std::setfill('0') << m << "m:" 
+           << std::setw(2) << std::setfill('0') << s << "s";
+        return os;
+    }
+
+    friend std::istream& operator>>(std::istream& is, Time& t) {
+        int h = 0, m = 0, s = 0;
+        char ch;
+        if (is >> h >> ch >> m >> ch >> s) {
+            t.seconds = h * 3600 + m * 60 + s;
+        }
+        return is;
+    }
+
+    Time operator+(const Time& other) const {
+        return Time(seconds + other.seconds);
+    }
+
+    Time operator-(const Time& other) const {
+        return Time(seconds - other.seconds);
+    }
+
+    Time operator*(int scalar) const {
+        return Time(seconds * scalar);
+    }
+
+    operator int() const { // Conversion to seconds
+        return seconds;
+    }
+
+    void menu() {
+        int choice;
+        Time t4, t5;
+        int scalar;
+
+        do {
+            std::cout << "\n1: Addition\n";
+            std::cout << "2: Subtraction\n";
+            std::cout << "3: Multiplication by scalar\n";
+            std::cout << "4: Exit\n";
+            std::cout << "Choice: ";
+            std::cin >> choice;
+
+            if (choice == 1) {
+                std::cout << "Enter first time (hh:mm:ss): ";
+                std::cin >> t4;
+                std::cout << "Enter second time (hh:mm:ss): ";
+                std::cin >> t5;
+                Time result = t4 + t5;
+                std::cout << "Result: " << result << std::endl;
+            } 
+            else if (choice == 2) {
+                std::cout << "Enter first time (hh:mm:ss): ";
+                std::cin >> t4;
+                std::cout << "Enter second time (hh:mm:ss): ";
+                std::cin >> t5;
+                Time result = t4 - t5;
+                std::cout << "Result: " << result << std::endl;
+            } 
+            else if (choice == 3) {
+                std::cout << "Enter time (hh:mm:ss): ";
+                std::cin >> t4;
+                std::cout << "Enter scalar: ";
+                std::cin >> scalar;
+                Time result = t4 * scalar;
+                std::cout << "Result: " << result << std::endl;
+            }
+        } while (choice != 4);
+    }
+};
+
+int main() {
+    Time t1(200);
+    std::cout << t1 << std::endl; // displays 00h:03m:20s
+    
+    Time t2;
+    std::cout << "Enter time (hh:mm:ss): ";
+    std::cin >> t2; // user enters 10h:12m:01s
+    
+    Time t3 = t2 - t1; // Example operation
+    std::cout << t3 << std::endl;
+    
+    int t3s = t3; // Conversion to seconds
+    std::cout << "Seconds: " << t3s << std::endl;
+    
+    Time t;
+    t.menu(); // Run the menu for user interaction
+
+    return 0;
+}
