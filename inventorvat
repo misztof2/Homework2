@@ -1,0 +1,127 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+
+class Item {
+private:
+    std::string name;
+    double unit_net_price;
+    char vat_type;
+    int quantity;
+
+public:
+    Item(std::string name, double unit_net_price, char vat_type, int quantity)
+        : name(name), unit_net_price(unit_net_price), vat_type(vat_type), quantity(quantity) {}
+
+    double get_vat_rate() const {
+        switch (vat_type) {
+            case 'A': return 0.23;
+            case 'B': return 0.08;
+            case 'C': return 0.00;
+            default: return 0.00;
+        }
+    }
+
+    double get_net_value() const {
+        return unit_net_price * quantity;
+    }
+
+    double get_total_value() const {
+        return get_net_value() * (1 + get_vat_rate());
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Item& item) {
+        os << std::setw(20) << std::left << item.name << " | "
+           << std::fixed << std::setprecision(2) << item.unit_net_price << "  "
+           << item.vat_type << " | "
+           << std::setw(3) << item.quantity << " | "
+           << std::setw(6) << item.get_net_value() << " | "
+           << std::setw(6) << item.get_total_value();
+        return os;
+    }
+};
+
+class Invoice {
+private:
+    long long seller_nip;
+    long long buyer_nip;
+    std::vector<Item> items;
+
+public:
+    Invoice(long long seller_nip, long long buyer_nip)
+        : seller_nip(seller_nip), buyer_nip(buyer_nip) {}
+
+    void add_item(const Item& item) {
+        items.push_back(item);
+    }
+
+    void add_item_interactive() {
+        std::string name;
+        double unit_net_price;
+        char vat_type;
+        int quantity;
+        
+        std::cout << "Enter item name: ";
+        std::cin.ignore();
+        std::getline(std::cin, name);
+        std::cout << "Enter unit net price: ";
+        std::cin >> unit_net_price;
+        std::cout << "Enter VAT type (A, B, C): ";
+        std::cin >> vat_type;
+        std::cout << "Enter quantity: ";
+        std::cin >> quantity;
+        
+        items.push_back(Item(name, unit_net_price, vat_type, quantity));
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Invoice& invoice) {
+        os << "------------------VAT invoice------------------\n"
+           << "===============================================\n"
+           << "Seller: " << invoice.seller_nip << "      Buyer: " << invoice.buyer_nip << "\n\n"
+           << "                  c.j. VAT   il.    net   total\n";
+
+        double total_net = 0.0, total_gross = 0.0;
+        int index = 1;
+        for (const auto& item : invoice.items) {
+            os << index++ << ". " << item << "\n";
+            total_net += item.get_net_value();
+            total_gross += item.get_total_value();
+        }
+
+        os << "\n------------------------------------ TOTAL ----\n"
+           << "                                  "
+           << std::fixed << std::setprecision(2) << total_net << " | "
+           << total_gross << "\n";
+        return os;
+    }
+};
+
+int main() {
+    Invoice inv(7770003699, 1234567890);
+    
+    int choice;
+    do {
+        std::cout << "\nInvoice System Menu:\n";
+        std::cout << "1. Add new item\n";
+        std::cout << "2. Print invoice\n";
+        std::cout << "3. Exit\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
+        
+        switch (choice) {
+            case 1:
+                inv.add_item_interactive();
+                break;
+            case 2:
+                std::cout << inv << std::endl;
+                break;
+            case 3:
+                std::cout << "Exiting program...\n";
+                break;
+            default:
+                std::cout << "Invalid choice! Please try again.\n";
+        }
+    } while (choice != 3);
+    
+    return 0;
+}
