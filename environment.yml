@@ -1,0 +1,16 @@
+name: neuro
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - scikit-image
+  - tifffile
+  - h5py
+  - jupyterlab
+  - pip
+  - pip:
+      - pynwb
